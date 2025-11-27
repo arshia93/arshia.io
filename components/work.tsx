@@ -23,7 +23,7 @@ const work = [
     period: "2017 — 2022",
     role: "Head of Product & Founder",
     company: "Trym",
-    url: "https://trytrym.com",
+    url: "https://trymcuts.com",
     description:
       "Founded a two-sided subscription marketplace to increase net revenue for barbers. Owned product strategy end-to-end, growing repeat purchase rate 3x and ARR from $0 to $180k in 6 months.",
     metrics: "$0 → $180k ARR in 6 months",
