@@ -1,8 +1,8 @@
 export function Stack() {
   const stack = {
     Product: ["Figma", "Linear", "Amplitude", "Notion"],
-    Technical: ["TypeScript", "React", "Python", "SQL"],
-    "AI / No-Code": ["Cursor", "Claude", "v0", "Zapier"],
+    Technical: ["JavaScript/React", "TypeScript", "Python", "SQL"],
+    "AI / ML": ["OpenAI", "LLMs", "RAG", "AI Automations"],
   }
 
   return (

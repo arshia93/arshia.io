@@ -3,31 +3,31 @@ import Link from "next/link"
 
 const work = [
   {
-    period: "2023 — Present",
+    period: "2024 — Present",
+    role: "Product Lead",
+    company: "Adly",
+    url: "adly.com",
+    description:
+      "Leading product strategy for a PE portfolio of 5 SaaS companies. Drove portfolio ARR growth from $16.8M to $40.8M by identifying opportunities across acquisition, activation, and retention.",
+    metrics: "$16.8M → $40.8M ARR",
+  },
+  {
+    period: "2022 — 2023",
     role: "Product Manager",
     company: "Scratchpad",
     url: "#",
     description:
-      "Leading growth initiatives for a sales workspace. Shipped AI features that increased weekly active usage by 40%.",
-    metrics: "40% WAU increase",
+      "Managed 0-1 product development at the AI-powered B2B SaaS platform serving revenue teams. Increased customer seat utilization by 5% and saved the internal GTM team 300 hours.",
+    metrics: "5% seat utilization increase",
   },
   {
-    period: "2021 — 2023",
-    role: "Product Manager",
-    company: "Outdoorsy",
-    url: "#",
-    description:
-      "Owned activation and retention for the world's largest RV marketplace. Built the guest onboarding flow from scratch.",
-    metrics: "$50M+ in bookings influenced",
-  },
-  {
-    period: "2019 — 2021",
-    role: "Founder",
+    period: "2017 — 2022",
+    role: "Head of Product & Founder",
     company: "Trym",
     url: "#",
     description:
-      "Built a lawn care marketplace from zero to acquisition. Wrote the first 10k lines of code, closed first 100 customers.",
-    metrics: "Acquired",
+      "Founded a two-sided subscription marketplace to increase net revenue for barbers. Owned product strategy end-to-end, growing repeat purchase rate 3x and ARR from $0 to $180k in 6 months.",
+    metrics: "$0 → $180k ARR in 6 months",
   },
 ]
 
