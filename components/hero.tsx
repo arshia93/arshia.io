@@ -10,7 +10,7 @@ export function Hero() {
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
         Product Manager by trade, builder at heart. I love solving hard problems through
-        <span className="text-foreground"> active experimentation</span>. 
+        <span className="text-foreground"> user focused experimentation</span>. 
         </p>
       </div>
 

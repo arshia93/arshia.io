@@ -14,8 +14,7 @@ export function Now() {
             Working
           </span>
           <p>
-            Product Lead at Adly, driving 0-to-1 ventures across a PE portfolio
-            of 5 SaaS companies. Leading product strategy from $16.8M to $40.8M
+            Product at Adly, driving 0-to-1 ventures across a PE portfolio. Leading product strategy from $16.8M to $40.8M
             ARR.
           </p>
         </div>

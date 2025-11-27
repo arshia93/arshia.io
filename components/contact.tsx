@@ -8,7 +8,7 @@ const XLogo = ({ className }: { className?: string }) => (
 )
 
 const socials = [
-  { icon: XLogo, href: "https://x.com/arshiagm", label: "Twitter" },
+  // { icon: XLogo, href: "https://x.com/arshiagm", label: "Twitter" },
   { icon: Linkedin, href: "https://linkedin.com/in/arshiamog", label: "LinkedIn" },
   { icon: Github, href: "https://github.com/arshia93", label: "GitHub" },
   { icon: Mail, href: "mailto:arshiamoghaddam93@gmail.com", label: "Email" },

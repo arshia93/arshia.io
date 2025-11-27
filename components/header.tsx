@@ -1,9 +1,9 @@
 import Link from "next/link"
 
 const navItems = [
+  { label: "Now", href: "#now" },
   { label: "Work", href: "#work" },
   { label: "Projects", href: "#projects" },
-  { label: "Now", href: "#now" },
   { label: "Contact", href: "#contact" },
 ]
 
