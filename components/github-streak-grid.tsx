@@ -44,7 +44,7 @@ export function GitHubStreakGrid({ grid }: { grid: ContributionCell[][] }) {
   const handleMouseLeave = useCallback(() => setTooltip(null), [])
 
   return (
-    <div onMouseMove={handleMouseMove}>
+    <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
       <div className="flex gap-[3px]">
         {grid.map((week, w) => (
           <div key={w} className="flex flex-col gap-[3px]">
@@ -54,7 +54,6 @@ export function GitHubStreakGrid({ grid }: { grid: ContributionCell[][] }) {
                 className="w-[10px] h-[10px] rounded-[2px] cursor-pointer transition-opacity hover:opacity-80"
                 style={{ background: LEVEL_COLORS[cell.level] }}
                 onMouseEnter={(e) => handleMouseEnter(cell, e)}
-                onMouseLeave={handleMouseLeave}
               />
             ))}
           </div>

@@ -52,7 +52,7 @@ export function buildHeatmapGrid(
       week.push({
         date: dateStr,
         count: contrib?.count ?? 0,
-        level: (contrib?.level ?? 0) as 0 | 1 | 2 | 3 | 4,
+        level: (Math.min(4, Math.max(0, contrib?.level ?? 0))) as 0 | 1 | 2 | 3 | 4,
       })
     }
     grid.push(week)
