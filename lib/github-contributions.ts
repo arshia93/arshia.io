@@ -2,6 +2,7 @@ export type ContributionCell = {
   date: string // "YYYY-MM-DD"
   count: number
   level: 0 | 1 | 2 | 3 | 4
+  isFuture: boolean
 }
 
 type ApiContribution = {
@@ -49,10 +50,12 @@ export function buildHeatmapGrid(
       date.setDate(start.getDate() + w * 7 + d)
       const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
       const contrib = map.get(dateStr)
+      const isFuture = date > todayCopy
       week.push({
         date: dateStr,
         count: contrib?.count ?? 0,
         level: (Math.min(4, Math.max(0, contrib?.level ?? 0))) as 0 | 1 | 2 | 3 | 4,
+        isFuture,
       })
     }
     grid.push(week)

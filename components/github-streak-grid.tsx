@@ -51,9 +51,12 @@ export function GitHubStreakGrid({ grid }: { grid: ContributionCell[][] }) {
             {week.map((cell, d) => (
               <div
                 key={d}
-                className="w-[10px] h-[10px] rounded-[2px] cursor-pointer transition-opacity hover:opacity-80"
-                style={{ background: LEVEL_COLORS[cell.level] }}
-                onMouseEnter={(e) => handleMouseEnter(cell, e)}
+                className="w-[10px] h-[10px] rounded-[2px] transition-opacity"
+                style={{
+                  background: cell.isFuture ? "transparent" : LEVEL_COLORS[cell.level],
+                  cursor: cell.isFuture ? "default" : "pointer",
+                }}
+                onMouseEnter={cell.isFuture ? undefined : (e) => handleMouseEnter(cell, e)}
               />
             ))}
           </div>
