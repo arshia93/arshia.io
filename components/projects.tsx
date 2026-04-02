@@ -8,7 +8,7 @@ const projects = [
     stack: ["Next.js", "Supabase", "Tailwind", "Plasmo"],
     url: "https://useinreach.com",
     github: null,
-    status: "Building",
+    status: "Live",
   },
   {
     name: "Blueprint",
