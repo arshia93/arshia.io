@@ -47,7 +47,7 @@ export function buildHeatmapGrid(
     for (let d = 0; d < 7; d++) {
       const date = new Date(start)
       date.setDate(start.getDate() + w * 7 + d)
-      const dateStr = date.toISOString().split("T")[0]
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
       const contrib = map.get(dateStr)
       week.push({
         date: dateStr,

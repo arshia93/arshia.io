@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react"
 import type { ContributionCell } from "@/lib/github-contributions"
 
-const LEVEL_COLORS: Record<number, string> = {
+const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
   0: "oklch(0.22 0.02 260)",
   1: "oklch(0.32 0.08 175)",
   2: "oklch(0.48 0.11 175)",
@@ -44,7 +44,7 @@ export function GitHubStreakGrid({ grid }: { grid: ContributionCell[][] }) {
   const handleMouseLeave = useCallback(() => setTooltip(null), [])
 
   return (
-    <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+    <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} role="img" aria-label="GitHub contributions over the last 16 weeks">
       <div className="flex gap-[3px]">
         {grid.map((week, w) => (
           <div key={w} className="flex flex-col gap-[3px]">
