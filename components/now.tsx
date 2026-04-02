@@ -42,7 +42,7 @@ export function Now() {
         <div className="flex items-start gap-4">
           <span className="text-muted-foreground text-sm mt-1 w-20 shrink-0">Coding</span>
           <div className="mt-1">
-            <Suspense fallback={<div className="h-[82px] w-[163px] rounded bg-secondary/50 animate-pulse" />}>
+            <Suspense fallback={<div className="h-[88px] w-[205px] rounded bg-secondary/50 animate-pulse" />}>
               <GitHubStreak />
             </Suspense>
           </div>
