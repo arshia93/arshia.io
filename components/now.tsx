@@ -1,5 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
+import { GitHubStreak } from "@/components/github-streak";
 
 export function Now() {
   return (
@@ -30,11 +32,20 @@ export function Now() {
         </div>
 
         <div className="flex items-start gap-4">
-        <span className="text-muted-foreground text-sm mt-1 w-20 shrink-0">Reading</span>
+          <span className="text-muted-foreground text-sm mt-1 w-20 shrink-0">Reading</span>
           <p>
             <em>Think Like a Rocket Scientist</em> by Ozan Varol · <em>Click</em> by Jake
             Knapp
           </p>
+        </div>
+
+        <div className="flex items-start gap-4">
+          <span className="text-muted-foreground text-sm mt-1 w-20 shrink-0">Coding</span>
+          <div className="mt-1">
+            <Suspense>
+              <GitHubStreak />
+            </Suspense>
+          </div>
         </div>
       </div>
     </section>
