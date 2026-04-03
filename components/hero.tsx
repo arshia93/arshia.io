@@ -8,14 +8,14 @@ export function Hero() {
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight text-balance mb-6">
           I love building and growing products.
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
+        {/* <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
         Product Manager by trade, builder at heart. I love solving hard problems through
         <span className="text-foreground"> user focused experimentation</span>. 
-        </p>
+        </p> */}
       </div>
 
       <div className="flex flex-wrap items-center gap-x-1 text-sm text-muted-foreground">
-        <span>Previously shipped products at</span>
+        <span>Shipped products at</span>
         <Link href="https://adly.com" className="text-foreground hover:text-primary transition-colors inline-flex items-center">
           Adly
           <ArrowUpRight className="w-3 h-3" />
