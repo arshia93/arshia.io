@@ -17,7 +17,7 @@ export function Now() {
             Building
           </span>
           <p>
-            Something new at Founders Inc.{" "}
+            Helping hospitals reduce uncompensated care at Founders Inc.{" "}
           </p>
         </div>
 
