@@ -17,7 +17,7 @@ export function Now() {
             Building
           </span>
           <p>
-            Helping hospitals reduce uncompensated care at Founders Inc.{" "}
+            <Link href="https://basiscoverage.com" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Basis Coverage</Link>, coverage recovery for hospitals and clinics.
           </p>
         </div>
 
