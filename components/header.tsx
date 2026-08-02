@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const navItems = [
   { label: "Now", href: "#now" },
@@ -13,17 +14,20 @@ export function Header() {
       <Link href="/" className="text-lg font-medium tracking-tight text-foreground">
         Arshia Moghaddam
       </Link>
-      <nav className="hidden md:flex items-center gap-8">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <div className="flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-8">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <ThemeToggle />
+      </div>
     </header>
   )
 }

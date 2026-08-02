@@ -17,7 +17,14 @@ export function Now() {
             Building
           </span>
           <p>
-            <Link href="https://basiscoverage.com" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Basis Coverage</Link>, coverage recovery for hospitals and clinics.
+            Medicaid infrastructure for health centers at{" "}
+            <Link
+              href="https://www.basiscoverage.com"
+              className="text-foreground hover:text-primary transition-colors inline-flex items-center"
+            >
+              Basis Coverage
+              <ArrowUpRight className="w-3 h-3" />
+            </Link>
           </p>
         </div>
 
