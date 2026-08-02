@@ -4,11 +4,11 @@ import { useState, useCallback } from "react"
 import type { ContributionCell } from "@/lib/github-contributions"
 
 const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
-  0: "oklch(0.22 0.02 260)",
-  1: "oklch(0.32 0.08 175)",
-  2: "oklch(0.48 0.11 175)",
-  3: "oklch(0.62 0.13 175)",
-  4: "oklch(0.75 0.15 175)",
+  0: "var(--streak-0)",
+  1: "var(--streak-1)",
+  2: "var(--streak-2)",
+  3: "var(--streak-3)",
+  4: "var(--streak-4)",
 }
 
 type TooltipState = {

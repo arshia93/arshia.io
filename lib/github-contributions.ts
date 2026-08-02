@@ -13,8 +13,12 @@ type ApiContribution = {
 
 export async function fetchContributions(): Promise<ApiContribution[] | null> {
   try {
+    // `y=last` scopes the response to the trailing 365 days. Without it the API
+    // returns every year since 2016 and buckets `level` per-year, so the same
+    // count lands on a different shade depending on how busy that year was —
+    // which is why the grid drifted out of sync with github.com/arshia93.
     const res = await fetch(
-      "https://github-contributions-api.jogruber.de/v4/arshia93",
+      "https://github-contributions-api.jogruber.de/v4/arshia93?y=last",
       { next: { revalidate: 3600 } }
     )
     if (!res.ok) return null
