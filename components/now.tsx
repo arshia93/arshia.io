@@ -17,7 +17,7 @@ export function Now() {
             Building
           </span>
           <p>
-            Medicaid infrastructure for health centers at{" "}
+          Disability benefit enrollment for clinics at {" "}
             <Link
               href="https://www.basiscoverage.com"
               className="text-foreground hover:text-primary transition-colors inline-flex items-center"
