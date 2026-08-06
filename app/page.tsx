@@ -15,7 +15,7 @@ export default function Home() {
         <Now />
         <Work />
         <Projects />
-        <Stack />
+        {/* <Stack /> */}
         <Contact />
       </div>
     </main>
