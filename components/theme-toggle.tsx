@@ -2,26 +2,43 @@
 
 import { useEffect, useState } from "react"
 import { useTheme } from "next-themes"
-import { Moon, Sun } from "lucide-react"
+import { Monitor, Moon, Sun } from "lucide-react"
+
+const CYCLE = ["system", "light", "dark"] as const
+
+const ICONS = {
+  system: Monitor,
+  light: Sun,
+  dark: Moon,
+}
+
+const LABELS = {
+  system: "following system",
+  light: "light",
+  dark: "dark",
+}
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => setMounted(true), [])
 
-  const isDark = resolvedTheme === "dark"
+  // `theme` is "system" | "light" | "dark"; anything unexpected falls back to system.
+  const current = CYCLE.includes(theme as (typeof CYCLE)[number]) ? (theme as (typeof CYCLE)[number]) : "system"
+  const next = CYCLE[(CYCLE.indexOf(current) + 1) % CYCLE.length]
+  const Icon = ICONS[current]
 
   return (
     <button
       type="button"
-      aria-label={mounted ? `Switch to ${isDark ? "light" : "dark"} mode` : "Toggle theme"}
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={mounted ? `Theme: ${LABELS[current]}. Switch to ${LABELS[next]}.` : "Toggle theme"}
+      onClick={() => setTheme(next)}
       className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      {/* Both icons render on the server; visibility is CSS-driven so there is no hydration mismatch */}
-      <Sun className="w-4 h-4 hidden dark:block" />
-      <Moon className="w-4 h-4 block dark:hidden" />
+      {/* The active state lives in localStorage, which the server can't read, so the icon
+          only renders after mount. The button keeps its size either way. */}
+      {mounted && <Icon className="w-4 h-4" />}
     </button>
   )
 }
