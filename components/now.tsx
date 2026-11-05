@@ -17,7 +17,7 @@ export function Now() {
             Building
           </span>
           <p>
-          Medicaid renewal for health plans and clinics at {" "}
+          Agents for Medicaid renewal {" "}
             <Link
               href="https://www.basiscoverage.com"
               className="text-foreground hover:text-primary transition-colors inline-flex items-center"
