@@ -2,10 +2,11 @@
 
 Source code for my personal site — [arshia.io](https://arshia.io).
 
-A single-page portfolio built with the Next.js App Router: an intro, what I'm
+A single-page portfolio built with the Next.js App Router, presented as a
+cloth-bound book: it opens on landing, and each section — an intro, what I'm
 working on now (with a live GitHub contribution grid), work history, projects,
-and a way to get in touch. Server-rendered, statically deployed to Vercel, no
-database and no backend.
+and a way to get in touch — is a page with its own entrance animation.
+Server-rendered, statically deployed to Vercel, no database and no backend.
 
 ## Tech stack
 
@@ -50,8 +51,11 @@ There are no environment variables or secrets — the app runs as-is after
 
 ```
 app/                 App Router entry — layout, page, global styles
+  book.css           The book: binding, paper, page turns, page animations
 components/          Page sections and UI components
-  hero.tsx           Intro
+  book/book.tsx      Page-turn engine (spread / single-page, keys, swipe, deep links)
+  book/cover.tsx     Front cover and endpaper
+  hero.tsx           Intro (title page)
   now.tsx            Current focus + GitHub activity
   work.tsx           Experience
   projects.tsx       Projects
@@ -63,8 +67,16 @@ lib/
 docs/                Design notes and implementation plans
 ```
 
-Sections are composed in `app/page.tsx` — adding, removing, or reordering one
-is a single edit there.
+Pages are listed in `app/page.tsx` — adding, removing, or reordering one is a
+single edit there. Each page's `id` is its deep link (`arshia.io/#work`).
+
+## The book
+
+Wide screens show a two-page spread; phones and portrait tablets show one page
+at a time. Turn pages with the arrow keys, the page edge, the controls, a swipe,
+or the header links. Elements with an `ink ink-*` class (see `app/book.css`)
+animate when their page turns into view; `inkDelay()` in `lib/ink.ts` staggers
+them. With `prefers-reduced-motion`, pages change instantly and nothing animates.
 
 ## GitHub contribution grid
 

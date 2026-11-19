@@ -34,7 +34,7 @@ export function ThemeToggle() {
       type="button"
       aria-label={mounted ? `Theme: ${LABELS[current]}. Switch to ${LABELS[next]}.` : "Toggle theme"}
       onClick={() => setTheme(next)}
-      className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="book-icon-btn"
     >
       {/* The active state lives in localStorage, which the server can't read, so the icon
           only renders after mount. The button keeps its size either way. */}

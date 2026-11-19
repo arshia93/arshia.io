@@ -1,46 +1,58 @@
-"use client"
-
-import Link from "next/link"
-import { Github, Linkedin, Mail } from "lucide-react"
-
-const XLogo = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-  </svg>
-)
+import { ArrowUpRight, Github, Linkedin, Mail } from "lucide-react"
+import { ChapterHeading } from "@/components/book/chapter-heading"
+import { inkDelay } from "@/lib/ink"
 
 const socials = [
-  // { icon: XLogo, href: "https://x.com/arshiagm", label: "Twitter" },
   { icon: Linkedin, href: "https://linkedin.com/in/arshiamog", label: "LinkedIn" },
   { icon: Github, href: "https://github.com/arshia93", label: "GitHub" },
   { icon: Mail, href: "mailto:arshiamoghaddam93@gmail.com", label: "Email" },
 ]
 
+/** Chapter IV — closes with a signature that writes itself. */
 export function Contact() {
   return (
-    <section id="contact" className="pt-8 border-t border-border">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div>
-          <h2 className="text-sm text-muted-foreground mb-3 uppercase tracking-wider">Contact</h2>
-          <p className="text-foreground mb-1">Want to build something together?</p>
-          <p className="text-sm text-muted-foreground">Let's share stories and make something special.</p>
-        </div>
+    <section className="chapter chapter-contact">
+      <ChapterHeading numeral="IV" title="Contact" />
 
-        <div className="flex items-center gap-4">
-          {socials.map((social) => (
-            <Link
-              key={social.label}
+      <p className="contact-lede ink ink-blur" style={inkDelay(420)}>
+        Want to build something together?
+      </p>
+      <p className="contact-sub ink ink-rise" style={inkDelay(640)}>
+        Let&apos;s share stories and make something special.
+      </p>
+
+      <ul className="contact-links">
+        {socials.map((social, i) => (
+          <li key={social.label} className="ink ink-rise" style={inkDelay(860 + i * 130)}>
+            <a
               href={social.href}
-              aria-label={social.label}
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="contact-link"
+              {...(social.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             >
-              <social.icon className="w-5 h-5" />
-            </Link>
-          ))}
-        </div>
+              <social.icon aria-hidden />
+              <span className="contact-label">{social.label}</span>
+              <ArrowUpRight className="contact-arrow" aria-hidden />
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <div className="signature" aria-label="Signed, Arshia">
+        <span className="signature-text ink ink-write" style={inkDelay(1350)} aria-hidden>
+          Arshia
+        </span>
+        <svg className="signature-swash ink ink-draw-svg" style={inkDelay(2650)} viewBox="0 0 220 24" aria-hidden>
+          <path pathLength={1} d="M4 16C40 10 92 6 150 8 178 9 200 12 214 17" />
+        </svg>
       </div>
 
-      <p className="text-sm text-muted-foreground mt-12">© {new Date().getFullYear()} Arshia Moghaddam</p>
+      <p className="colophon ink ink-fade" style={inkDelay(2200)}>
+        © {new Date().getFullYear()} Arshia Moghaddam
+        <span className="colophon-sep">·</span>
+        <a href="#about" className="book-link">
+          Begin again
+        </a>
+      </p>
     </section>
   )
 }

@@ -1,6 +1,7 @@
-import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
 
+// Plain anchors on purpose: the book listens for `hashchange` and turns to the
+// matching page, so these links work as a table of contents.
 const navItems = [
   { label: "Now", href: "#now" },
   { label: "Work", href: "#work" },
@@ -10,20 +11,16 @@ const navItems = [
 
 export function Header() {
   return (
-    <header className="flex items-center justify-between mb-20 md:mb-32">
-      <Link href="/" className="text-lg font-medium tracking-tight text-foreground">
+    <header className="book-header">
+      <a href="#about" className="book-header-name">
         Arshia Moghaddam
-      </Link>
-      <div className="flex items-center gap-8">
-        <nav className="hidden md:flex items-center gap-8">
+      </a>
+      <div className="book-header-end">
+        <nav className="book-header-nav" aria-label="Contents">
           {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <a key={item.href} href={item.href}>
               {item.label}
-            </Link>
+            </a>
           ))}
         </nav>
         <ThemeToggle />
