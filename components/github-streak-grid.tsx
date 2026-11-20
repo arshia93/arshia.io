@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { createPortal } from "react-dom"
 import type { ContributionCell } from "@/lib/github-contributions"
+import { inkDelay } from "@/lib/ink"
 
 const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
   0: "var(--streak-0)",
@@ -10,6 +12,11 @@ const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
   3: "var(--streak-3)",
   4: "var(--streak-4)",
 }
+
+// When its page turns into view the grid ripples in, one week (column) at a time.
+const RIPPLE_START_MS = 820
+const RIPPLE_WEEK_MS = 32
+const RIPPLE_DAY_MS = 14
 
 type TooltipState = {
   text: string
@@ -59,23 +66,24 @@ export function GitHubStreakGrid({ grid }: { grid: ContributionCell[][] }) {
   )
 
   return (
-    <div
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      role="img"
-      aria-label="GitHub contributions over the last 16 weeks"
-    >
-      <div className="flex gap-[3px]">
+    <figure className="streak">
+      <div
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        role="img"
+        aria-label="GitHub contributions over the last 16 weeks"
+        className="streak-grid"
+      >
         {grid.map((week, w) => (
-          <div key={w} className="flex flex-col gap-[3px]">
+          <div key={w} className="streak-week">
             {week.map((cell, d) => (
               <div
                 key={d}
-                className="w-[10px] h-[10px] rounded-[2px] transition-opacity"
-                style={{
+                className="streak-cell ink ink-pop"
+                style={inkDelay(RIPPLE_START_MS + w * RIPPLE_WEEK_MS + d * RIPPLE_DAY_MS, {
                   background: cell.isFuture ? "transparent" : LEVEL_COLORS[cell.level],
                   cursor: cell.isFuture ? "default" : "pointer",
-                }}
+                })}
                 onMouseEnter={cell.isFuture ? undefined : (e) => handleMouseEnter(cell, e)}
                 onTouchStart={cell.isFuture ? undefined : (e) => handleTouchStart(cell, e)}
               />
@@ -83,26 +91,28 @@ export function GitHubStreakGrid({ grid }: { grid: ContributionCell[][] }) {
           </div>
         ))}
       </div>
-      {tooltip && (
-        <>
-          {tooltip.centered && (
+      <figcaption className="streak-caption ink ink-fade" style={inkDelay(1500)}>
+        Sixteen weeks on GitHub
+      </figcaption>
+      {/* The grid sits inside a 3D-transformed page, which would trap `position: fixed`,
+          so the tooltip is portaled out to the document body. */}
+      {tooltip &&
+        createPortal(
+          <>
+            {tooltip.centered && <div className="fixed inset-0 z-40" onClick={() => setTooltip(null)} />}
             <div
-              className="fixed inset-0 z-40"
-              onClick={() => setTooltip(null)}
-            />
-          )}
-          <div
-            className="fixed z-50 px-2.5 py-1.5 text-xs rounded-md border border-border bg-card text-card-foreground shadow-md whitespace-nowrap"
-            style={
-              tooltip.centered
-                ? { left: "50%", top: "50%", transform: "translate(-50%, -50%)", pointerEvents: "none" }
-                : { left: tooltip.x + 12, top: tooltip.y - 28, pointerEvents: "none" }
-            }
-          >
-            {tooltip.text}
-          </div>
-        </>
-      )}
-    </div>
+              className="streak-tooltip"
+              style={
+                tooltip.centered
+                  ? { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }
+                  : { left: tooltip.x + 12, top: tooltip.y - 28 }
+              }
+            >
+              {tooltip.text}
+            </div>
+          </>,
+          document.body
+        )}
+    </figure>
   )
 }

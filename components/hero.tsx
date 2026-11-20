@@ -1,42 +1,65 @@
-import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
+import { inkDelay } from "@/lib/ink"
 
+const shipped = [
+  { name: "Adly", href: "https://adly.com" },
+  { name: "Scratchpad", href: "https://scratchpad.com" },
+  { name: "Outdoorsy", href: "https://outdoorsy.com" },
+]
+
+const headline: { word: string; italic?: boolean }[] = [
+  { word: "I" },
+  { word: "love" },
+  { word: "building", italic: true },
+  { word: "and" },
+  { word: "growing", italic: true },
+  { word: "products." },
+]
+
+function Credit({ name, href }: { name: string; href: string }) {
+  return (
+    <a href={href} className="book-link">
+      {name}
+      <ArrowUpRight aria-hidden />
+    </a>
+  )
+}
+
+/** Page 1 — the title page. The headline inks in word by word. */
 export function Hero() {
   return (
-    <section id="about" className="mb-24 md:mb-32">
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight text-balance mb-6">
-          I love building and growing products.
-        </h1>
-        {/* <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
-        Product Manager by trade, builder at heart. I love solving hard problems through
-        <span className="text-foreground"> user focused experimentation</span>. 
-        </p> */}
-      </div>
+    <section className="title-page" aria-label="About">
+      <p className="title-name ink ink-fade" style={inkDelay(80)}>
+        Arshia Moghaddam
+      </p>
 
-      <div className="flex flex-wrap items-center gap-x-1 text-sm text-muted-foreground">
-        <span>Shipped products at</span>
-        <Link href="https://adly.com" className="text-foreground hover:text-primary transition-colors inline-flex items-center">
-          Adly
-          <ArrowUpRight className="w-3 h-3" />
-        </Link>
-        <span>,</span>
-        <Link href="https://scratchpad.com" className="text-foreground hover:text-primary transition-colors inline-flex items-center">
-          Scratchpad
-          <ArrowUpRight className="w-3 h-3" />
-        </Link>
-        <span>,</span>
-        <Link href="https://outdoorsy.com" className="text-foreground hover:text-primary transition-colors inline-flex items-center">
-          Outdoorsy
-          <ArrowUpRight className="w-3 h-3" />
-        </Link>
-        <span>· Founded</span>
-        <Link href="https://trymcuts.com" className="text-foreground hover:text-primary transition-colors inline-flex items-center">
-          Trym
-          <ArrowUpRight className="w-3 h-3" />
-        </Link>
+      <svg className="fleuron ink ink-draw-svg" style={inkDelay(260)} viewBox="0 0 240 24" aria-hidden>
+        <path pathLength={1} d="M112 12C96 12 90 3 80 5 72 7 73 17 80 16.5 85 16 85 10 80.5 10.5M76 12H18" />
+        <path pathLength={1} d="M128 12C144 12 150 3 160 5 168 7 167 17 160 16.5 155 16 155 10 159.5 10.5M164 12H222" />
+        <path pathLength={1} className="fleuron-diamond" d="M120 5 125 12 120 19 115 12Z" />
+      </svg>
 
-      </div>
+      <h1 className="title-headline">
+        {headline.map(({ word, italic }, i) => (
+          <span key={word} className={italic ? "word ink ink-blur word-italic" : "word ink ink-blur"} style={inkDelay(520 + i * 120)}>
+            {word}
+            {i < headline.length - 1 ? " " : ""}
+          </span>
+        ))}
+      </h1>
+
+      <span className="title-rule ink ink-draw" style={inkDelay(1350)} aria-hidden />
+
+      <p className="title-credits ink ink-rise" style={inkDelay(1500)}>
+        Shipped products at{" "}
+        {shipped.map((s, i) => (
+          <span key={s.name}>
+            <Credit {...s} />
+            {i < shipped.length - 1 ? ", " : " "}
+          </span>
+        ))}
+        <span className="title-dot">·</span> Founded <Credit name="Trym" href="https://trymcuts.com" />
+      </p>
     </section>
   )
 }

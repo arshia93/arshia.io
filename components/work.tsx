@@ -1,4 +1,6 @@
 import { ArrowUpRight } from "lucide-react"
+import { ChapterHeading } from "@/components/book/chapter-heading"
+import { inkDelay } from "@/lib/ink"
 
 const work = [
   {
@@ -30,31 +32,31 @@ const work = [
   },
 ]
 
+/** Chapter II — the timeline draws itself down the page; each result is highlighted in turn. */
 export function Work() {
   return (
-    <section id="work" className="mb-24 md:mb-32">
-      <h2 className="text-sm text-muted-foreground mb-8 uppercase tracking-wider">Work</h2>
+    <section className="chapter">
+      <ChapterHeading numeral="II" title="Work" />
 
-      <div className="space-y-10">
-        {work.map((item, index) => (
-          <div key={index} className="group">
-            <div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4 mb-2">
-              <span className="text-sm text-muted-foreground shrink-0">{item.period}</span>
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-foreground font-medium hover:text-primary transition-colors"
-              >
-                {item.role} · {item.company}
-                <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <ol className="timeline">
+        <span className="timeline-line ink ink-draw-y" style={inkDelay(380)} aria-hidden />
+        {work.map((item, i) => (
+          <li key={item.company} className="timeline-item ink ink-rise" style={inkDelay(460 + i * 240)}>
+            <span className="timeline-dot ink ink-pop" style={inkDelay(640 + i * 240)} aria-hidden />
+            <p className="timeline-period">{item.period}</p>
+            <h3 className="timeline-role">
+              <a href={item.url} target="_blank" rel="noopener noreferrer" className="book-link">
+                {item.role} <span className="timeline-sep">·</span> {item.company}
+                <ArrowUpRight aria-hidden />
               </a>
-            </div>
-            <p className="text-muted-foreground mb-2">{item.description}</p>
-            <span className="text-xs text-primary bg-primary/10 px-2 py-1 rounded">{item.metrics}</span>
-          </div>
+            </h3>
+            <p className="timeline-desc">{item.description}</p>
+            <span className="metric" style={inkDelay(900 + i * 240)}>
+              {item.metrics}
+            </span>
+          </li>
         ))}
-      </div>
+      </ol>
     </section>
   )
 }
