@@ -103,6 +103,15 @@ function revealDelay(from: number, to: number) {
   return leafDelay(last, from, to) + leafDuration(last) * 0.42
 }
 
+/** When the last leaf of a turn from `from` to `to` comes to rest. */
+function turnEnd(from: number, to: number) {
+  let end = 0
+  for (let k = Math.min(from, to); k < Math.max(from, to); k++) {
+    end = Math.max(end, leafDelay(k, from, to) + leafDuration(k))
+  }
+  return end
+}
+
 /** Fore-edge of the page block: a few hairlines per leaf on that side. */
 function stackShadow(leaves: number, dir: 1 | -1) {
   if (leaves <= 0) return "none"
@@ -499,7 +508,17 @@ export function Book({ pages }: { pages: BookPage[] }) {
             })}
 
             {spread > 0 && spread < max && (
-              <button type="button" className="edge edge-next" tabIndex={-1} aria-hidden onClick={next}>
+              <button
+                // Remounts on every turn so the one-page dog-ear tucks away and folds back in
+                // once the turning leaf has landed (see .book[data-mode="single"] .curl).
+                key={spread}
+                type="button"
+                className="edge edge-next"
+                tabIndex={-1}
+                aria-hidden
+                onClick={next}
+                style={{ "--fold-delay": `${turnEnd(from, spread)}ms` } as CSSProperties}
+              >
                 <span className="curl" />
               </button>
             )}

@@ -13,23 +13,19 @@ export function BookCover() {
           Moghaddam
         </p>
         <span className="cover-rule" aria-hidden />
-        <p className="cover-subtitle foil">Product Builder</p>
+        <p className="cover-subtitle foil">
+          A short bio
+        </p>
       </div>
-      <p className="cover-foot foil">arshia.io</p>
     </div>
   )
 }
 
-/** Inside of the front board: patterned endpaper with a bookplate. */
+/** Inside of the front board: plain patterned endpaper. */
 export function Endpaper() {
   return (
     <div className="endpaper">
       <div className="endpaper-pattern" aria-hidden />
-      <div className="bookplate">
-        <span className="bookplate-ex">Ex Libris</span>
-        <span className="bookplate-rule" aria-hidden />
-        <span className="bookplate-name">Arshia Moghaddam</span>
-      </div>
     </div>
   )
 }
