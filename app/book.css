@@ -21,14 +21,19 @@
   --rule: oklch(0.82 0.022 80);
   --accent: oklch(0.46 0.085 182);
   --accent-wash: oklch(0.84 0.08 172 / 0.55);
-  --cover: oklch(0.35 0.058 186);
+  --cover: #e9e1cf; /* natural linen */
   --endpaper: oklch(0.9 0.026 172);
   --endpaper-ink: oklch(0.45 0.06 182 / 0.24);
   --ribbon: oklch(0.48 0.15 24);
   --ribbon-deep: oklch(0.36 0.12 24);
-  --gold-deep: #8b6a2c;
-  --gold: #c9a24f;
-  --gold-light: #f2dc9c;
+  /* Cover stamping: deep-teal foil on linen */
+  --gold-deep: #154842;
+  --gold: #1f5a55;
+  --gold-light: #3c8079;
+  --cover-cloth:
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.18) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgb(90 70 40 / 0.06) 0 1px, transparent 1px 3px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.27 0 0 0 0 0.15 0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --shade: 60 42 15;
   --shadow: 45 32 15;
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.18 0 0 0 0 0.08 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -57,7 +62,7 @@
   --rule: oklch(0.38 0.012 75);
   --accent: oklch(0.8 0.1 172);
   --accent-wash: oklch(0.5 0.08 176 / 0.45);
-  --cover: oklch(0.3 0.05 186);
+  --cover: #cfc6b2; /* linen, dimmed for night */
   --endpaper: oklch(0.27 0.03 182);
   --endpaper-ink: oklch(0.62 0.06 178 / 0.22);
   --ribbon: oklch(0.5 0.14 24);
@@ -253,7 +258,7 @@ body {
   z-index: 1;
   border-radius: 0 0.45rem 0.45rem 0;
   background-color: var(--cover);
-  background-image: var(--cloth);
+  background-image: var(--cover-cloth);
   box-shadow:
     0 2.4rem 3.6rem -1.8rem rgb(var(--shadow) / 0.55),
     0 0.9rem 1.5rem -0.7rem rgb(var(--shadow) / 0.35),
@@ -540,11 +545,11 @@ body {
   border-radius: 0 0.45rem 0.45rem 0;
   background-color: var(--cover);
   background-image:
-    linear-gradient(90deg, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.12) 2.4%, rgb(255 255 255 / 0.07) 3.4%, rgb(0 0 0 / 0.2) 4.3%, transparent 6.5%),
-    radial-gradient(120% 80% at 28% 18%, rgb(255 255 255 / 0.09), transparent 60%),
-    linear-gradient(to bottom, transparent 70%, rgb(0 0 0 / 0.14)),
-    var(--cloth);
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15);
+    linear-gradient(90deg, rgb(60 45 20 / 0.22) 0, rgb(60 45 20 / 0.06) 2.4%, rgb(255 255 255 / 0.4) 3.4%, rgb(60 45 20 / 0.1) 4.3%, transparent 6.5%),
+    radial-gradient(120% 80% at 28% 18%, rgb(255 255 255 / 0.35), transparent 60%),
+    linear-gradient(to bottom, transparent 70%, rgb(60 45 20 / 0.08)),
+    var(--cover-cloth);
+  box-shadow: inset 0 0 0 1px rgb(60 45 20 / 0.12);
 }
 
 .cover-art {
@@ -584,7 +589,7 @@ body {
     var(--gold-deep) 0%,
     var(--gold-light) 20%,
     var(--gold) 36%,
-    #fff1c4 48%,
+    #4f938b 48%,
     var(--gold) 60%,
     var(--gold-light) 78%,
     var(--gold-deep) 100%
@@ -593,7 +598,7 @@ body {
   background-position: 0% 0;
   -webkit-background-clip: text;
   background-clip: text;
-  filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.45));
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 0.5));
   animation: foil-shimmer 3.4s ease-in-out 0.25s both;
 }
 
@@ -675,7 +680,7 @@ body {
 .endpaper-face {
   border-radius: 0.45rem 0 0 0.45rem;
   background-color: var(--cover);
-  background-image: var(--cloth);
+  background-image: var(--cover-cloth);
 }
 
 .endpaper {
