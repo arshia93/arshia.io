@@ -8,7 +8,7 @@ import {
   useState,
   useSyncExternalStore,
   type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
+  type TouchEvent as ReactTouchEvent,
   type ReactNode,
 } from "react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
@@ -115,6 +115,11 @@ function stackShadow(leaves: number, dir: 1 | -1) {
   return out.join(", ")
 }
 
+/** Whether a page's own text can still scroll in that direction. */
+function canScroll(el: HTMLElement, direction: number, top = el.scrollTop) {
+  return direction > 0 ? top + el.clientHeight < el.scrollHeight - 1 : top > 0
+}
+
 function writeHash(id?: string) {
   const url = id ? `#${id}` : window.location.pathname + window.location.search
   window.history.replaceState(window.history.state, "", url)
@@ -141,7 +146,15 @@ export function Book({ pages }: { pages: BookPage[] }) {
   const viewRef = useRef(current)
   const reducedRef = useRef(false)
   const inkTimer = useRef<number | undefined>(undefined)
-  const swipe = useRef<{ id: number; x: number; y: number; t: number } | null>(null)
+  const swipe = useRef<{
+    id: number
+    x: number
+    y: number
+    t: number
+    body: HTMLElement | null
+    scrollTop: number
+  } | null>(null)
+  const wheel = useRef({ acc: 0, last: 0, locked: false, turnedAt: 0 })
 
   useEffect(() => {
     viewRef.current = current
@@ -269,18 +282,82 @@ export function Book({ pages }: { pages: BookPage[] }) {
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [count, goTo, next, prev])
 
-  const onPointerDown = (e: ReactPointerEvent) => {
-    if (e.pointerType === "mouse") return
-    swipe.current = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() }
+  // Scrolling turns pages: down/right for the next page, up/left for the previous.
+  // A page whose text overflows scrolls first; it turns once you reach its end.
+  // One gesture (including trackpad momentum) turns one page.
+  useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return // pinch-zoom
+      const w = wheel.current
+      const now = performance.now()
+      const gap = now - w.last
+      w.last = now
+      const raw = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX
+      const delta = e.deltaMode === 1 ? raw * 16 : e.deltaMode === 2 ? raw * 400 : raw
+      if (delta === 0) return
+
+      const body = (e.target as Element | null)?.closest?.(".page-body") as HTMLElement | null
+      if (body && canScroll(body, delta)) {
+        w.acc = 0
+        return
+      }
+      if (w.locked) {
+        if (gap > 180 && now - w.turnedAt > 600) w.locked = false
+        else return
+      }
+      if (gap > 180) w.acc = 0
+      w.acc += delta
+      if (Math.abs(w.acc) >= 40) {
+        if (w.acc > 0) next()
+        else prev()
+        w.acc = 0
+        w.locked = true
+        w.turnedAt = now
+      }
+    }
+    window.addEventListener("wheel", onWheel, { passive: true })
+    return () => window.removeEventListener("wheel", onWheel)
+  }, [next, prev])
+
+  // Touch: swipe left/right, or up/down like scrolling. Touch events (not pointer
+  // events) so the gesture still ends cleanly when the browser scrolls a page.
+  const onTouchStart = (e: ReactTouchEvent) => {
+    if (e.touches.length !== 1) {
+      swipe.current = null
+      return
+    }
+    const t = e.touches[0]
+    const body = (e.target as Element).closest?.(".page-body") as HTMLElement | null
+    swipe.current = {
+      id: t.identifier,
+      x: t.clientX,
+      y: t.clientY,
+      t: performance.now(),
+      body,
+      scrollTop: body?.scrollTop ?? 0,
+    }
   }
-  const onPointerUp = (e: ReactPointerEvent) => {
+  const onTouchEnd = (e: ReactTouchEvent) => {
     const start = swipe.current
     swipe.current = null
-    if (!start || start.id !== e.pointerId) return
-    const dx = e.clientX - start.x
-    const dy = e.clientY - start.y
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3 && performance.now() - start.t < 900) {
+    const t = e.changedTouches[0]
+    if (!start || !t || start.id !== t.identifier || performance.now() - start.t > 900) return
+    const dx = t.clientX - start.x
+    const dy = t.clientY - start.y
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) {
       if (dx < 0) next()
+      else prev()
+    } else if (Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx) * 1.3) {
+      const forward = dy < 0
+      const { body } = start
+      // A long page scrolls to its end before the swipe turns it. If the browser
+      // didn't scroll it natively, scroll it ourselves so the reader never gets stuck.
+      if (body && body.scrollTop !== start.scrollTop) return
+      if (body && canScroll(body, forward ? 1 : -1)) {
+        body.scrollBy({ top: (forward ? 1 : -1) * body.clientHeight * 0.8, behavior: "smooth" })
+        return
+      }
+      if (forward) next()
       else prev()
     }
   }
@@ -367,9 +444,9 @@ export function Book({ pages }: { pages: BookPage[] }) {
     <>
       <div
         className="book-stage"
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => (swipe.current = null)}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={() => (swipe.current = null)}
       >
         <section
           className="book"
