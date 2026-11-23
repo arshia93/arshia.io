@@ -35,14 +35,19 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-The book and North Beach intro run as-is after `npm install`. OpenSeadragon
-loads the original city illustration from local tiles. The fly-in plays on
-each homepage load. Chapter links and reduced-motion visits open directly to
+The book and San Francisco intro run as-is after `npm install`. OpenSeadragon
+loads the original city illustrations from local tiles. The fly-in plays on
+each homepage load: it opens on the whole city, dives into North Beach, and
+flies through an apartment window to the book. Chapter links and reduced-motion visits open directly to
 the book.
 
-## North Beach artwork
+## San Francisco artwork
 
-The orthographic illustration uses real building footprints, LiDAR-derived
+Two orthographic illustrations share one projection: a citywide drawing
+(`public/arrival/san-francisco-tiles/`) and a finer North Beach drawing
+(`public/arrival/north-beach-tiles/`) that crossfades in once it fills the
+screen. `lib/north-beach-map.json` places both in the same image coordinates.
+They use real building footprints, LiDAR-derived
 building heights, street geometry, and street-tree locations from [DataSF](https://data.sf.gov/).
 The shoreline, piers, paths, and parks are based on [OpenStreetMap](https://www.openstreetmap.org/copyright).
 Elevation is from USGS 3DEP via [Mapzen Terrain Tiles](https://registry.opendata.aws/terrain-tiles/).

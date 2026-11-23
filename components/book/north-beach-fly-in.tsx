@@ -7,7 +7,14 @@ import map from "@/lib/north-beach-map.json"
 
 const LOAD_TIMEOUT_MS = 4400
 const OPENING_SETTLE_MS = 350
-const FLIGHT_MS = 4900
+// The camera opens on the whole city, dives to North Beach, then flies
+// down the block to the lit window.
+const NEIGHBORHOOD_MS = 4900
+const APPROACH_MS = NEIGHBORHOOD_MS + 2000
+const FLIGHT_MS = APPROACH_MS + 1230
+const DETAIL_FADE_START_MS = NEIGHBORHOOD_MS + 1570
+const DETAIL_FADE_MS = 690
+const NORTH_BEACH_FADE_MS = 450
 const WINDOW_PASS_MS = 680
 const WINDOW_ROOM_OVERLAP_MS = 360
 const DESK_GLIDE_MS = 1000
@@ -32,24 +39,43 @@ const paneHeight = lowerRight[1] - upperRight[1]
 const paneSlope = (upperLeft[1] - upperRight[1]) / paneWidth
 const FRAME_WIDTH = .28
 
-function cameraAt(progress: number, aspect: number) {
+// The citywide drawing shares the North Beach image's coordinates.
+const city = map.city
+const cityHeight = city.span * city.height / city.width
+
+function cameraAt(elapsed: number, aspect: number) {
   const portrait = portraitScale(aspect)
-  const whole = Math.min(map.width * .96, map.height * aspect * .96)
+  const overview = {
+    x: city.x + city.span / 2,
+    y: city.y + cityHeight * .51,
+    span: Math.min(city.span, cityHeight * aspect) * .98,
+  }
   const shots = [
-    { time: 0, x: lerp(map.neighborhood[0], map.width * .51, portrait), y: map.height * .50, span: whole },
-    { time: .34, x: map.neighborhood[0], y: map.neighborhood[1], span: 3150 * portrait },
-    { time: .75, x: windowX + 10, y: windowY + 9, span: 520 * portrait },
-    { time: 1, x: windowX, y: windowY, span: windowSpan(aspect) },
+    { time: 0, ...overview },
+    { time: NEIGHBORHOOD_MS, x: map.neighborhood[0], y: map.neighborhood[1], span: 3150 * portrait, dive: true },
+    { time: APPROACH_MS, x: windowX + 10, y: windowY + 9, span: 520 * portrait },
+    { time: FLIGHT_MS, x: windowX, y: windowY, span: windowSpan(aspect) },
   ]
-  const index = shots.findIndex((shot) => shot.time >= progress && shot.time > 0)
+  const index = Math.max(1, shots.findIndex((shot) => shot.time >= elapsed && shot.time > 0))
   const from = shots[index - 1]
   const to = shots[index]
-  const amount = smooth((progress - from.time) / (to.time - from.time))
+  const eased = smooth(clamp((elapsed - from.time) / (to.time - from.time)))
+  // The dive lingers over the city while the fog lifts, then speeds up.
+  const amount = "dive" in to ? eased * eased : eased
+  const span = from.span * (to.span / from.span) ** amount
+  // Diving from the city, keep North Beach fixed on screen as it grows.
+  const travel = "dive" in to ? (from.span - span) / (from.span - to.span) : amount
   return {
-    x: lerp(from.x, to.x, amount),
-    y: lerp(from.y, to.y, amount),
-    span: from.span * (to.span / from.span) ** amount,
+    x: lerp(from.x, to.x, travel),
+    y: lerp(from.y, to.y, travel),
+    span,
   }
+}
+
+function insideNorthBeach(x: number, y: number, span: number, aspect: number) {
+  const halfWidth = span / 2
+  const halfHeight = span / aspect / 2
+  return x - halfWidth >= 0 && x + halfWidth <= map.width && y - halfHeight >= 0 && y + halfHeight <= map.height
 }
 
 export function NorthBeachFlyIn({ onRoomFrame, onOpenCover, onFinish }: {
@@ -90,7 +116,9 @@ export function NorthBeachFlyIn({ onRoomFrame, onOpenCover, onFinish }: {
     void room.decode().then(() => { roomReady = true }, () => {})
 
     let viewer: OpenSeadragon.Viewer | undefined
+    let northBeach: OpenSeadragon.TiledImage | undefined
     let detail: OpenSeadragon.TiledImage | undefined
+    let northBeachAt: number | undefined
     let cancelled = false
     let started = false
     let frame = 0
@@ -125,11 +153,17 @@ export function NorthBeachFlyIn({ onRoomFrame, onOpenCover, onFinish }: {
         mapViewer.viewport.zoomTo(map.width / span, undefined, true)
       }
 
-      function move(progress: number) {
+      function move(elapsed: number) {
         const { x: width, y: height } = mapViewer.viewport.getContainerSize()
-        const camera = cameraAt(progress, Math.max(.1, width / Math.max(1, height)))
+        const aspect = Math.max(.1, width / Math.max(1, height))
+        const camera = cameraAt(elapsed, aspect)
         moveCamera(camera.x, camera.y, camera.span)
-        detail?.setOpacity(smooth(clamp((progress - .66) / .14)))
+        // Swap to the finer North Beach drawing once it fills the screen.
+        if (northBeachAt === undefined && (elapsed >= NEIGHBORHOOD_MS || insideNorthBeach(camera.x, camera.y, camera.span, aspect))) {
+          northBeachAt = elapsed
+        }
+        northBeach?.setOpacity(northBeachAt === undefined ? 0 : smooth(clamp((elapsed - northBeachAt) / NORTH_BEACH_FADE_MS)))
+        detail?.setOpacity(smooth(clamp((elapsed - DETAIL_FADE_START_MS) / DETAIL_FADE_MS)))
       }
 
       const passWindow = (progress: number) => {
@@ -180,9 +214,9 @@ export function NorthBeachFlyIn({ onRoomFrame, onOpenCover, onFinish }: {
             if (cancelled || finished.current) return
             const elapsed = now - start
             if (elapsed < FLIGHT_MS) {
-              move(clamp(elapsed / FLIGHT_MS))
+              move(elapsed)
             } else {
-              if (currentPhase === "flying" && (!roomReady || !detail?.getFullyLoaded())) {
+              if (currentPhase === "flying" && (!roomReady || !northBeach || !detail?.getFullyLoaded())) {
                 finish("failed")
                 return
               }
@@ -227,28 +261,54 @@ export function NorthBeachFlyIn({ onRoomFrame, onOpenCover, onFinish }: {
         }
         mapViewer.addHandler("tile-drawn", onOverviewDrawn)
 
-        // A second drawing of the same block uses the same coordinates at a
-        // finer scale, so the bay window holds its detail during the last push.
+        // North Beach is drawn again at a finer scale over the city.
+        mapViewer.addTiledImage({
+          tileSource: new Seadragon.DziTileSource({
+            width: map.width,
+            height: map.height,
+            tileSize: map.tileSize,
+            tileOverlap: 1,
+            tilesUrl: "/arrival/north-beach-tiles/",
+            fileFormat: "webp",
+            minLevel: 8,
+          }),
+          index: 1,
+          x: 0,
+          y: 0,
+          width: 1,
+          opacity: 0,
+          preload: true,
+          success: (event) => { northBeach = (event as unknown as { item: OpenSeadragon.TiledImage }).item },
+          error: () => finish("failed"),
+        })
+        // A third drawing of the same block uses the same coordinates at a
+        // finer scale still, so the bay window holds its detail during the last push.
         mapViewer.addTiledImage({
           tileSource: { type: "image", url: "/arrival/north-beach-detail.webp" },
+          index: 2,
           x: map.detail[0] / map.width,
           y: map.detail[1] / map.width,
           width: map.detail[2] / map.width,
           opacity: 0,
           preload: true,
-          success: () => { detail = mapViewer.world.getItemAt(1) },
+          success: (event) => { detail = (event as unknown as { item: OpenSeadragon.TiledImage }).item },
         })
       })
 
-      mapViewer.open({ tileSource: new Seadragon.DziTileSource({
-        width: map.width,
-        height: map.height,
-        tileSize: map.tileSize,
-        tileOverlap: 1,
-        tilesUrl: "/arrival/north-beach-tiles/",
-        fileFormat: "webp",
-        minLevel: 8,
-      }) })
+      mapViewer.open({
+        tileSource: new Seadragon.DziTileSource({
+          width: city.width,
+          height: city.height,
+          tileSize: city.tileSize,
+          tileOverlap: 1,
+          tilesUrl: "/arrival/san-francisco-tiles/",
+          fileFormat: "webp",
+          minLevel: 8,
+        }),
+        x: city.x / map.width,
+        y: city.y / map.width,
+        width: city.span / map.width,
+      })
     }
 
     void initialize(host).catch(() => {
@@ -264,7 +324,7 @@ export function NorthBeachFlyIn({ onRoomFrame, onOpenCover, onFinish }: {
   }, [finish, onOpenCover, onRoomFrame])
 
   return (
-    <section className="fly-in" data-phase={phase} aria-label="Arrival in North Beach">
+    <section className="fly-in" data-phase={phase} aria-label="Arrival in San Francisco">
       <div className="fly-in-map" ref={mapLayer} aria-hidden>
         <div className="fly-in-camera" ref={container} />
         <div className="fly-in-wall" />
@@ -276,7 +336,7 @@ export function NorthBeachFlyIn({ onRoomFrame, onOpenCover, onFinish }: {
         <use href={`#${paneId}`} className="fly-in-casing" />
         <use href={`#${paneId}`} className="fly-in-trim" />
       </svg>
-      {phase === "loading" && <p className="fly-in-loading" role="status">Loading North Beach…</p>}
+      {phase === "loading" && <p className="fly-in-loading" role="status">Loading San Francisco…</p>}
       {(phase === "flying" || phase === "window") && (
         <div className="fly-in-credit">
           <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>
