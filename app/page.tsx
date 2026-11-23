@@ -1,4 +1,5 @@
-import { Book, type BookPage } from "@/components/book/book"
+import type { BookPage } from "@/components/book/book"
+import { BookLanding } from "@/components/book/book-landing"
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
 import { Now } from "@/components/now"
@@ -18,12 +19,11 @@ const pages: BookPage[] = [
 
 export default function Home() {
   return (
-    <main className="book-root">
-      <Header />
-      <Book pages={pages} />
+    <>
+      <BookLanding pages={pages} header={<Header />} />
       <noscript>
         <style>{`.leaf-cover{--angle:-180!important}.book .book-body{transform:none!important}.book-controls{visibility:hidden}`}</style>
       </noscript>
-    </main>
+    </>
   )
 }
