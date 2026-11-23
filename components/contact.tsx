@@ -49,7 +49,7 @@ export function Contact() {
       <p className="colophon ink ink-fade" style={inkDelay(2200)}>
         © {new Date().getFullYear()} Arshia Moghaddam
         <span className="colophon-sep">·</span>
-        <a href="#about" className="book-link">
+        <a href="/" className="book-link" data-replay-intro>
           Begin again
         </a>
       </p>
