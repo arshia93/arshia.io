@@ -36,9 +36,9 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000).
 
 The book and North Beach intro run as-is after `npm install`. OpenSeadragon
-loads the original city illustration from local tiles. Chapter links,
-reduced-motion visits, and sessions that have already seen the intro open
-directly to the book.
+loads the original city illustration from local tiles. The fly-in plays on
+each homepage load. Chapter links and reduced-motion visits open directly to
+the book.
 
 ## North Beach artwork
 

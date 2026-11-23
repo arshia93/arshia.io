@@ -4,29 +4,12 @@ import { useCallback, useState, useSyncExternalStore, type ReactNode } from "rea
 import { Book, type BookPage } from "./book"
 import { NorthBeachFlyIn } from "./north-beach-fly-in"
 
-const VISIT_KEY = "north-beach-illustrated-intro-seen"
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
 
 type Landing = "checking" | "flight" | "room" | "book"
 
-function hasSeenIntro() {
-  try {
-    return sessionStorage.getItem(VISIT_KEY) === "1"
-  } catch {
-    return false
-  }
-}
-
-function rememberIntro() {
-  try {
-    sessionStorage.setItem(VISIT_KEY, "1")
-  } catch {
-    // The intro still works when session storage is unavailable.
-  }
-}
-
 function canPlayIntro() {
-  return !window.location.hash && !window.matchMedia(REDUCED_MOTION).matches && !hasSeenIntro()
+  return !window.location.hash && !window.matchMedia(REDUCED_MOTION).matches
 }
 
 function subscribeToEntrancePreferences(callback: () => void) {
@@ -54,7 +37,6 @@ export function BookLanding({ pages, header }: { pages: BookPage[]; header: Reac
   }
 
   const completeFlight = useCallback((outcome: "arrived" | "skipped" | "failed") => {
-    if (outcome !== "failed") rememberIntro()
     setLanding((current) => current === "flight" ? (outcome === "arrived" ? "room" : "book") : current)
   }, [])
 
