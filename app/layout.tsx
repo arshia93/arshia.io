@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 import "./book.css"
+import "./arrival.css"
 
 // Self-hosted (via Fontsource) rather than next/font/google: Turbopack fails to
 // resolve some Google font URLs on Vercel's build machines.

@@ -35,8 +35,19 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-There are no environment variables or secrets — the app runs as-is after
-`npm install`.
+The book and North Beach intro run as-is after `npm install`. OpenSeadragon
+loads the original city illustration from local tiles. Chapter links,
+reduced-motion visits, and sessions that have already seen the intro open
+directly to the book.
+
+## North Beach artwork
+
+The orthographic illustration uses real building footprints, LiDAR-derived
+building heights, street geometry, and street-tree locations from [DataSF](https://data.sf.gov/).
+The shoreline, piers, paths, and parks are based on [OpenStreetMap](https://www.openstreetmap.org/copyright).
+Elevation is from USGS 3DEP via [Mapzen Terrain Tiles](https://registry.opendata.aws/terrain-tiles/).
+Roof palettes were informed by USDA [NAIP imagery](https://imagery.nationalmap.gov/arcgis/rest/services/USGSNAIPImagery/ImageServer).
+Façades, rooftop details, and the apartment interior are illustrated interpretations.
 
 ## Scripts
 

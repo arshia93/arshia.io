@@ -42,6 +42,7 @@ const COVER_MS = 1500
 const STAGGER_MS = 150
 const COVER_LEAD_MS = 420
 const OPEN_DELAY_MS = 850
+const DESK_SETTLE_MS = 570
 
 const subscribeMode = (onChange: () => void) => {
   const mq = window.matchMedia(SPREAD_QUERY)
@@ -136,7 +137,7 @@ function writeHash(id?: string) {
 
 /* ----------------------------------------------------------------- component */
 
-export function Book({ pages }: { pages: BookPage[] }) {
+export function Book({ pages, active = true, arrived = false }: { pages: BookPage[]; active?: boolean; arrived?: boolean }) {
   const count = pages.length
   const mode = useSyncExternalStore(subscribeMode, getMode, getServerMode)
   const [view, setView] = useState<View>({ mode, spread: 0, from: 0 })
@@ -217,42 +218,48 @@ export function Book({ pages }: { pages: BookPage[] }) {
   )
 
   const pageFromHash = useCallback(() => {
-    const id = decodeURIComponent(window.location.hash.slice(1))
-    return Math.max(0, pages.findIndex((p) => p.id === id))
+    try {
+      const id = decodeURIComponent(window.location.hash.slice(1))
+      return Math.max(0, pages.findIndex((page) => page.id === id))
+    } catch {
+      return 0
+    }
   }, [pages])
 
-  // Landing: the closed book settles, the cover swings open to page 1, then
-  // (for deep links like /#work) the pages fan through to the target.
+  // Let the exterior finish before opening the cover. Chapter links and
+  // reduced motion reach their destination without a cover animation.
   useEffect(() => {
-    const reduced = window.matchMedia(REDUCED_MOTION_QUERY).matches
-    reducedRef.current = reduced
+    if (!active) return
+    const motion = window.matchMedia(REDUCED_MOTION_QUERY)
+    reducedRef.current = motion.matches
     const target = pageFromHash()
-    const timers: number[] = []
-    timers.push(
-      window.setTimeout(
-        () => {
-          if (viewRef.current.spread === 0) goTo(1, "intro")
-          if (target > 0) {
-            timers.push(
-              window.setTimeout(
-                () => {
-                  if (viewRef.current.spread === 1) goToPage(target, "link")
-                },
-                reduced ? 0 : COVER_MS + 120,
-              ),
-            )
-          }
-        },
-        reduced ? 0 : OPEN_DELAY_MS,
-      ),
-    )
-    return () => timers.forEach((t) => window.clearTimeout(t))
-  }, [goTo, goToPage, pageFromHash])
+    const openDirectly = motion.matches || target > 0
+    const timer = window.setTimeout(() => {
+      if (viewRef.current.spread !== 0) return
+      if (openDirectly) {
+        const mode = viewRef.current.mode
+        const spread = spreadOfPage(mode, target)
+        const destination = { mode, spread, from: spread }
+        // The initial destination is already open. Later page turns animate normally.
+        viewRef.current = destination
+        setView(destination)
+      } else {
+        goTo(1, "intro")
+      }
+    }, openDirectly ? 0 : arrived ? DESK_SETTLE_MS : OPEN_DELAY_MS)
+    const updateMotion = () => { reducedRef.current = motion.matches }
+    motion.addEventListener("change", updateMotion)
+    return () => {
+      window.clearTimeout(timer)
+      motion.removeEventListener("change", updateMotion)
+    }
+  }, [active, arrived, goTo, pageFromHash])
 
   useEffect(() => () => window.clearTimeout(inkTimer.current), [])
 
   // In-page links (#now, #work, …) turn to that page instead of scrolling.
   useEffect(() => {
+    if (!active) return
     const onHashChange = () => {
       const index = pageFromHash()
       goToPage(index, "link")
@@ -260,9 +267,10 @@ export function Book({ pages }: { pages: BookPage[] }) {
     }
     window.addEventListener("hashchange", onHashChange)
     return () => window.removeEventListener("hashchange", onHashChange)
-  }, [goToPage, pageFromHash])
+  }, [active, goToPage, pageFromHash])
 
   useEffect(() => {
+    if (!active) return
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return
       const target = e.target as HTMLElement | null
@@ -289,12 +297,13 @@ export function Book({ pages }: { pages: BookPage[] }) {
     }
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
-  }, [count, goTo, next, prev])
+  }, [active, count, goTo, next, prev])
 
   // Scrolling turns pages: down/right for the next page, up/left for the previous.
   // A page whose text overflows scrolls first; it turns once you reach its end.
   // One gesture (including trackpad momentum) turns one page.
   useEffect(() => {
+    if (!active) return
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey) return // pinch-zoom
       const w = wheel.current
@@ -326,7 +335,7 @@ export function Book({ pages }: { pages: BookPage[] }) {
     }
     window.addEventListener("wheel", onWheel, { passive: true })
     return () => window.removeEventListener("wheel", onWheel)
-  }, [next, prev])
+  }, [active, next, prev])
 
   // Touch: swipe left/right, or up/down like scrolling. Touch events (not pointer
   // events) so the gesture still ends cleanly when the browser scrolls a page.
@@ -462,6 +471,7 @@ export function Book({ pages }: { pages: BookPage[] }) {
           data-mode={mode}
           data-open={spread > 0 || undefined}
           data-spread={spread}
+          data-jump={(spread > 0 && from === spread) || undefined}
           aria-roledescription="book"
           aria-label="Arshia Moghaddam"
         >
