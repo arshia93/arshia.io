@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef, useState, useSyncExternalStore, type ReactNode } from "react"
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react"
 import { Book, type BookPage } from "./book"
 import { NorthBeachFlyIn } from "./north-beach-fly-in"
 
@@ -27,6 +27,7 @@ const readServerEntrancePreferences = () => null
 export function BookLanding({ pages, header }: { pages: BookPage[]; header: ReactNode }) {
   const eligible = useSyncExternalStore(subscribeToEntrancePreferences, canPlayIntro, readServerEntrancePreferences)
   const [landing, setLanding] = useState<Landing>("checking")
+  const [edition, setEdition] = useState(0)
   const root = useRef<HTMLElement>(null)
   const flying = landing === "flight" || landing === "opening"
 
@@ -54,6 +55,28 @@ export function BookLanding({ pages, header }: { pages: BookPage[]; header: Reac
     root.current?.style.setProperty("--desk-approach", String(deskGlide))
   }, [])
 
+  // "Begin again" replays the whole arrival with a freshly closed book.
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      const link = (event.target as Element | null)?.closest?.("a[data-replay-intro]")
+      if (!link) return
+      event.preventDefault()
+      if (window.matchMedia(REDUCED_MOTION).matches) {
+        window.location.hash = "about"
+        return
+      }
+      window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search)
+      root.current?.style.removeProperty("--room-entry")
+      root.current?.style.removeProperty("--desk-approach")
+      setEdition((current) => current + 1)
+      setLanding("flight")
+      requestAnimationFrame(() => document.querySelector<HTMLElement>(".fly-in-skip")?.focus())
+    }
+    document.addEventListener("click", onClick)
+    return () => document.removeEventListener("click", onClick)
+  }, [])
+
   const showRoom = flying || landing === "room"
   return (
     <>
@@ -67,6 +90,7 @@ export function BookLanding({ pages, header }: { pages: BookPage[]; header: Reac
         {showRoom && <div className="arrival-room" aria-hidden><div className="arrival-room-art" /></div>}
         {header}
         <Book
+          key={edition}
           pages={pages}
           active={landing === "book" || landing === "room"}
           openingOnArrival={landing === "opening" || landing === "room"}
