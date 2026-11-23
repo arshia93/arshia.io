@@ -42,7 +42,6 @@ const COVER_MS = 1500
 const STAGGER_MS = 150
 const COVER_LEAD_MS = 420
 const OPEN_DELAY_MS = 850
-const DESK_SETTLE_MS = 570
 
 const subscribeMode = (onChange: () => void) => {
   const mq = window.matchMedia(SPREAD_QUERY)
@@ -137,7 +136,11 @@ function writeHash(id?: string) {
 
 /* ----------------------------------------------------------------- component */
 
-export function Book({ pages, active = true, arrived = false }: { pages: BookPage[]; active?: boolean; arrived?: boolean }) {
+export function Book({ pages, active = true, openingOnArrival = false }: {
+  pages: BookPage[]
+  active?: boolean
+  openingOnArrival?: boolean
+}) {
   const count = pages.length
   const mode = useSyncExternalStore(subscribeMode, getMode, getServerMode)
   const [view, setView] = useState<View>({ mode, spread: 0, from: 0 })
@@ -226,34 +229,36 @@ export function Book({ pages, active = true, arrived = false }: { pages: BookPag
     }
   }, [pages])
 
-  // Let the exterior finish before opening the cover. Chapter links and
-  // reduced motion reach their destination without a cover animation.
+  // The arrival can open the cover before the reader becomes interactive.
+  // Chapter links and reduced motion open directly to their destination.
+  const readyToOpen = active || openingOnArrival
   useEffect(() => {
-    if (!active) return
+    if (!readyToOpen) return
     const motion = window.matchMedia(REDUCED_MOTION_QUERY)
     reducedRef.current = motion.matches
     const target = pageFromHash()
     const openDirectly = motion.matches || target > 0
     const timer = window.setTimeout(() => {
-      if (viewRef.current.spread !== 0) return
       if (openDirectly) {
         const mode = viewRef.current.mode
         const spread = spreadOfPage(mode, target)
         const destination = { mode, spread, from: spread }
         // The initial destination is already open. Later page turns animate normally.
         viewRef.current = destination
+        window.clearTimeout(inkTimer.current)
+        setInk(null)
         setView(destination)
-      } else {
+      } else if (viewRef.current.spread === 0) {
         goTo(1, "intro")
       }
-    }, openDirectly ? 0 : arrived ? DESK_SETTLE_MS : OPEN_DELAY_MS)
+    }, openDirectly || openingOnArrival ? 0 : OPEN_DELAY_MS)
     const updateMotion = () => { reducedRef.current = motion.matches }
     motion.addEventListener("change", updateMotion)
     return () => {
       window.clearTimeout(timer)
       motion.removeEventListener("change", updateMotion)
     }
-  }, [active, arrived, goTo, pageFromHash])
+  }, [readyToOpen, openingOnArrival, goTo, pageFromHash])
 
   useEffect(() => () => window.clearTimeout(inkTimer.current), [])
 
